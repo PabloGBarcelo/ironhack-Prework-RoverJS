@@ -14,6 +14,7 @@ var numberOfRovers = 4; /* de 1 a 4 automaticos colocados en cada esquina*/
 var numberOfObstacles = 15; /* Cant use more than 50% */
 var obstacles = [];
 var rover = [];
+var answer = ""; // Contain status of program (reboot, continue, finish)
 // Static Initial position for each rover
 var placeNewRovers = [
   [0,0],
@@ -63,7 +64,7 @@ function existSomethingThere(coorX,coorY){
   return false; //false = not exist
 }
 function existObstacleOrRover(coorX,coorY){
-  // Search if the object generated is placed where is a rover
+
   for(var coordinateEqualInRover in rover){
     if(rover[coordinateEqualInRover].x === coorX && rover[coordinateEqualInRover].y === coorY){
       return "rover";
@@ -305,7 +306,7 @@ function checkPositionBeforeMove(numRover,positionCalculated,coordinateExtra,coo
     console.log('Rover will exit from Square! '+coordinateActual+' jumping order');
     return 0;
   }
-  console.log("positionCalculated vale:"+positionCalculated+" coordinateExtra vale: "+coordinateExtra);
+  //console.log("positionCalculated vale:"+positionCalculated+" coordinateExtra vale: "+coordinateExtra);
   var somethingInFront = existObstacleOrRover(coordinateActual[0],coordinateActual[1]);
   if (somethingInFront == "rover"){
     console.log("There is a rover in front, jumping order");
@@ -346,43 +347,64 @@ function printMap(){
   for ( var y = 0; y < H; y++ ) {
     matrix[ y ] = [];
     for ( var x = 0; x < W; x++ ) {
-        matrix[ y ][ x ] = "o";
+        matrix[ y ][ x ] = "(o)";
     }
   }
   // Paint rovers
   for(imRover = 0;imRover < rover.length; imRover++){
     var x2 = rover[imRover].x;
     var y2 = rover[imRover].y;
-    matrix[y2][x2]="R";
+    switch(rover[imRover].direction){
+      case "N":
+        matrix[y2][x2]="(R⇡";
+        break;
+      case "S":
+        matrix[y2][x2]="(R⇣";
+        break;
+      case "W":
+        matrix[y2][x2]="(⇠R";
+        break;
+      case "E":
+        matrix[y2][x2]="(R⇢";
+        break;
+    }
   }
   // Paint obstacles
   for(imRover = 0;imRover < obstacles.length; imRover++){
     var x3 = obstacles[imRover].x;
     var y3 = obstacles[imRover].y;
-    matrix[y3][x3]="X";
+    matrix[y3][x3]="(X)";
   }
   console.log(matrix.join('\n') );
 }
-
+function initializeMap(){
+  // Create CPU Rovers
+  createRovers();
+  // Create Obstacles
+  createObstacles();
+}
 /* start here*/
 var repeat = 1;
-// Create CPU Rovers
-createRovers();
-// Create Obstacles
-createObstacles();
+initializeMap();
 while (repeat){
+  // If we repeat, create rovers and obstacles again
+  if (answer == "R"){
+    initializeMap();
+  }
   while(listCommands()); // Preload list commands
     if (rover[0].commands!= "null"){
       createOrders(rover[0].commands.length); // Random list commands CPU Rover
       executeOrders(rover);
       do{
         printMap();
-        var answer = prompt("please select an option: (r)estart, (c)ontinue or (f)inish");
+        answer = prompt("please select an option: (r)estart, (c)ontinue or (f)inish");
         if (answer !=null){
           answer = answer.toUpperCase();
         }
         if (answer == "R"){
-          rover.x = 0; rover.y = 0; rover.direction="N";
+          // Empty arrays of rover and obstacles
+          rover = [];
+          obstacles = [];
           console.log("Reloaded values and restarting");
         }
         if (answer == "F"){
@@ -391,7 +413,6 @@ while (repeat){
       }while((answer != "R" && answer != "C" && answer != "F") || answer==null);
       for (var listTracking in rover){
         console.log("Task executions COMPLETED - Rover Nº "+listTracking+" was parking at:["+rover[listTracking].x+","+rover[listTracking].y+"] looking at: "+rover[listTracking].direction);
-        //console.log("Rover Nº"+listTracking+" estuvo en: ");
         for (var listCoordinates in rover[listTracking].travelLog){
           console.log("X:"+rover[listTracking].travelLog[listCoordinates].x+" Y:"+rover[listTracking].travelLog[listCoordinates].y);
         }
