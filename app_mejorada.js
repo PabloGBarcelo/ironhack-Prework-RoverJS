@@ -410,6 +410,9 @@ while (repeat){
         if (answer == "F"){
           repeat = 0;
         }
+        if (answer == "C"){
+          console.log("Continue with same mission, go!");
+        }
       }while((answer != "R" && answer != "C" && answer != "F") || answer==null);
       for (var listTracking in rover){
         console.log("Task executions COMPLETED - Rover Nº "+listTracking+" was parking at:["+rover[listTracking].x+","+rover[listTracking].y+"] looking at: "+rover[listTracking].direction);
